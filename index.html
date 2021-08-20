@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js" charset="utf-8"></script>
+  <title>Data And Apis</title>
+</head>
+<body>
+  <canvas id="myChart" width="400" height="400"></canvas>
+  <script type="text/javascript">
+    async function getData() {
+      const res = await fetch('./data.csv')
+      const data = await res.text()
+
+      const table = data.split(/\n/).slice(1)
+
+      let years = []
+      let temps = []
+
+      table.forEach(row => {
+        if (!row) return
+
+        let cols = row.split(',')
+        years.push(cols[0])
+        // console.log(cols[0], cols[1])
+        temps.push(parseFloat(cols[1]) + 14)
+      });
+      // console.log(years);
+      // console.log(temps);
+      return { years, temps }
+    }
+
+  async function makeChart() {
+    let { years, temps } = await getData()
+        let ctx = document.getElementById('myChart').getContext('2d');
+        let myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+              labels: years,
+              datasets: [{
+                  label: 'The mean temp',
+                  data: temps,
+                  backgroundColor:'rgba(255, 99, 132, 0.2)',
+                  borderColor: 'rgba(255, 99, 132, 1',
+                  borderWidth: 1
+              }]
+          },
+          options: {
+            scales: {
+                  y: {
+                      ticks: {
+                          callback: function(value, index, values) {
+                            return  value + '°';
+                          }
+                      }
+                  }
+              }
+          },
+      })
+    }
+
+    makeChart()
+  </script>
+</body>
+</html>
